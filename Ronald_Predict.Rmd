@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
+system("git pull")#este actualiza el repositorio
 system("git add .")
 system("git commit -m \"Primer commit\" ")
 system("git push")
