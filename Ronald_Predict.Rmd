@@ -18,7 +18,3 @@ system("git push")
 ```
 
 
-```{r}
-system("git pull")#este actualiza el repositorio
-
-```
