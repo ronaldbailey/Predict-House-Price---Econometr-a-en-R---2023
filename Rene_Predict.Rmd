@@ -1,0 +1,18 @@
+---
+title: "Predict House price"
+author: "René Hernández"
+date: "r Sys.Date()"
+#output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+system("git add .")
+system("git commit -m \"primer commit\" ")
+system("git pull") 
+```
+
