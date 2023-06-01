@@ -16,3 +16,8 @@ dataset = read.csv("train.csv")
 ```{r}
 dataset 
 ```
+
+```{r}
+summary(dataset)
+```
+
