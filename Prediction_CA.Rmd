@@ -1,0 +1,10 @@
+---
+title: "Ejercicio # 1 Analisis de regresion"
+author: "Carlos Alvarado"
+date: "r Sys.Date()"
+output: pdf_document
+---
+
+{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
