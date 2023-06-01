@@ -21,3 +21,52 @@ dataset
 summary(dataset)
 ```
 
+```{r}
+
+# Calcula el número de NA en cada columna
+na_count <- colSums(is.na(dataset))
+
+# Muestra las columnas que tienen al menos un NA
+na_columns <- names(dataset)[na_count > 0]
+
+print(na_columns)
+```
+
+** total_bedrooms contiene NA's que deberan ser imputados en la fase de preparacion de datos **
+
+```{r}
+str(dataset)
+```
+
+```{r}
+#Validar catidad de opciones en la catargoria "ocean_proximity"
+unique_names = unique(dataset$ocean_proximity)
+print(unique_names)
+
+```
+
+** Los posibles resultados de ocean_proximity estan limitados a 5 opciones: "<1H OCEAN"  "INLAND"     "NEAR BAY"   "NEAR OCEAN" "ISLAND"  **
+
+```{r}
+# Selecciona solo las columnas numéricas
+numeric_columns <- dataset[sapply(dataset, is.numeric)]
+
+# Calcula la matriz de correlaciones para las columnas numéricas
+cor_matrix <- cor(numeric_columns, use = "complete.obs")
+cor_matrix
+```
+
+```{r}
+library(corrplot)
+library(corrplot)
+```
+
+```{r}
+# Grafica la matriz de correlaciones
+corrplot(cor_matrix, method = "color", type = "upper", order = "hclust", 
+         addCoef.col = "black", # Add correlation coefficient on the plot
+         tl.col="black", # Text label color
+         #tl.srt=45
+         ) # Text label rotation
+```
+
