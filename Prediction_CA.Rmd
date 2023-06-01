@@ -1,0 +1,21 @@
+---
+title: "Ejercicio # 1 Analisis de regresion"
+author: "Carlos Alvarado"
+date: "r Sys.Date()"
+output: pdf_document
+---
+
+{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```{r}
+system("cd Documents/Data_Science/EconometriaenR/ProyectoFinal/Predict-House-Price---Econometr-a-en-R---2023")
+```
+
+```{r}
+system("git add .")
+system("git commit -m \"Commit Comment\" ")
+system("git push")
+```
+
+
