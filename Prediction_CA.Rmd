@@ -8,3 +8,9 @@ output: pdf_document
 {r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+```{r}
+system("git add .")
+system("git commit -m \"Commit Comment\" ")
+system("git push")
+```
+
