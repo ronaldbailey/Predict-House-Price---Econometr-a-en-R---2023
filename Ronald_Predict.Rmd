@@ -1,0 +1,17 @@
+---
+title: "Predict House Price"
+author: "Ronald Bailey"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+system("git add .")
+system("git commit -m \"Primer commit\" ")
+system("git push")
+```
