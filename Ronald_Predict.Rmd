@@ -9,6 +9,10 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+system("git pull")#este actualiza el repositorio
+```
+
 
 ```{r}
 system("git pull")#este actualiza el repositorio
@@ -16,5 +20,10 @@ system("git add .")
 system("git commit -m \"Primer commit\" ")
 system("git push")
 ```
-
+```{r}
+system("git pull")#este actualiza el repositorio
+system("git add .")
+system("git commit -m \"Carga de datos\" ")
+system("git push")
+```
 
