@@ -360,4 +360,76 @@ nrow(dataset6)
 nrow(training_data6) + nrow(testing_data6)
 
 ```
+# Primer Modelo con Ingenieria de datos
 
+```{r}
+# Entrenar el modelo de regresión lineal
+model1 <- train(median_house_value ~ ., data = training_data6, method = "lm", trControl = trainControl(method = "cv", number = 10))
+
+# Hacer la predicción con la parte de prueba
+predictions <- predict(model1, testing_data6)
+
+# Calcular el Error Cuadrático Medio
+mse <- mean((predictions - testing_data6$median_house_value)^2)
+
+# Calcular la Raíz del Error Cuadrático Medio
+rmse <- sqrt(mse)
+
+# Calcular la desviación estándar de la variable median_house_value en el conjunto de datos de prueba
+std_dev <- sd(testing_data6$median_house_value)
+
+# Mostrar la Raíz del Error Cuadrático Medio
+print(paste("Raíz del Error Cuadrático Medio (RMSE):", rmse))
+
+# Mostrar la desviación estándar de la variable median_house_value
+print(paste("Desviación Estándar de median_house_value:", std_dev))
+```
+# Tercer modelo
+```{r}
+# Realizar la normalización de las variables numéricas en el conjunto de datos
+normalize <- function(x) {
+  return((x - min(x)) / (max(x) - min(x)))
+}
+
+# Aplicar la normalización a las variables numéricas en el conjunto de datos
+numeric_cols <- sapply(training_data6, is.numeric)
+training_data_normalized6 <- training_data6
+training_data_normalized6[numeric_cols] <- lapply(training_data_normalized6[numeric_cols], normalize)
+
+head(training_data_normalized6)
+
+# Calcular la desviación estándar de la variable objetivo en el conjunto de datos de prueba
+std_dev <- sd(testing_data6$median_house_value)
+
+# Entrenar el modelo de regresión lineal con los datos normalizados
+model3 <- train(median_house_value ~ ., data = training_data_normalized6, method = "lm", trControl = trainControl(method = "cv", number = 10))
+
+print(model3)
+
+# Normalizar las variables numéricas en el conjunto de prueba
+testing_data_normalized6 <- testing_data6
+testing_data_normalized6[numeric_cols] <- lapply(testing_data_normalized6[numeric_cols], normalize)
+
+# Hacer la predicción con el conjunto de prueba normalizado
+predictions <- predict(model3, testing_data_normalized6)
+
+head(predictions)
+
+# Calcular el Error Cuadrático Medio con los datos normalizados
+#mse <- mean((predictions - testing_data_normalized6$median_house_value)^2)
+
+# Calcular la Raíz del Error Cuadrático Medio con los datos normalizados
+#rmse <- sqrt(mse)
+
+# Calcular la desviación estándar del error de predicción
+#std_dev <- sd(predictions - testing_data_normalized6$median_house_value)
+
+# Mostrar la Raíz del Error Cuadrático Medio con los datos normalizados
+#print(paste("Raiz del Error Cuadratico Medio (RMSE) con datos normalizados:", rmse))
+
+# Mostrar la desviación estándar de la variable median_house_value
+#print(paste("Desviacion Estandar de median_house_value:", std_dev))
+
+
+
+```
