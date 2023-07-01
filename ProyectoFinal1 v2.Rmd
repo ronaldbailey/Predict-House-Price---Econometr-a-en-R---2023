@@ -1,0 +1,278 @@
+---
+title: "Proyecto Final1.0 v2"
+author: "Carlos Alvarado Ronald Guerra Rene Hernandez"
+date: "r Sys.Date()"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+dataset = read.csv("train.csv")
+```
+
+```{r}
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+library(randomForest)
+
+# Asumiendo que tu dataset se llama 'dataset'
+
+# Imputación de datos faltantes (ya lo has hecho)
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Asegurándose de que 'ocean_proximity' sea un factor
+dataset$ocean_proximity <- as.factor(dataset$ocean_proximity)
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.8, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Creando un modelo de Random Forest
+set.seed(123)
+rf_model <- randomForest(median_house_value ~ ., data=trainData, ntree=100)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(rf_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+# Puedes usar el modelo para hacer predicciones en nuevos datos
+# new_predictions <- predict(rf_model, newdata=new_data)
+
+```
+```{r}
+dataset = read.csv("train.csv")
+
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+
+# Asumiendo que tu dataset se llama 'dataset'
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Asegurándose de que 'ocean_proximity' sea un factor
+dataset$ocean_proximity <- as.factor(dataset$ocean_proximity)
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.8, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Creando un modelo de regresión lineal
+lm_model <- lm(median_house_value ~ ., data=trainData)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(lm_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+# Puedes usar el modelo para hacer predicciones en nuevos datos
+# new_predictions <- predict(lm_model, newdata=new_data)
+
+```
+
+```{r}
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+dataset = read.csv("train.csv")
+# Asumiendo que tu dataset se llama 'dataset'
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Asegurándose de que 'ocean_proximity' sea un factor
+dataset$ocean_proximity <- as.factor(dataset$ocean_proximity)
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.8, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Normalizando los datos (excluyendo la variable objetivo y las categóricas)
+num_vars <- sapply(trainData, is.numeric)
+num_vars["median_house_value"] <- FALSE
+num_vars["ocean_proximity"] <- FALSE
+
+preProcValues <- preProcess(trainData[, num_vars], method = c("center", "scale"))
+trainData[, num_vars] <- predict(preProcValues, trainData[, num_vars])
+testData[, num_vars] <- predict(preProcValues, testData[, num_vars])
+
+# Creando un modelo de regresión lineal
+lm_model <- lm(median_house_value ~ ., data=trainData)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(lm_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+# Puedes usar el modelo para hacer predicciones en nuevos datos
+# new_predictions <- predict(lm_model, newdata=new_data)
+
+```
+```{r}
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+
+# Leyendo el dataset
+dataset <- read.csv("train.csv")
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Guardar la columna median_house_value
+median_house_value <- dataset$median_house_value
+
+# Convertir 'ocean_proximity' en variables dummy
+dummies <- dummyVars(~ ., data=dataset)
+dataset <- data.frame(predict(dummies, newdata = dataset))
+
+# Agregar de nuevo la columna median_house_value
+dataset$median_house_value <- median_house_value
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.8, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Normalizando los datos (excluyendo la variable objetivo)
+num_vars <- colnames(trainData) != "median_house_value"
+
+preProcValues <- preProcess(trainData[, num_vars], method = c("center", "scale"))
+trainData[, num_vars] <- predict(preProcValues, trainData[, num_vars])
+testData[, num_vars] <- predict(preProcValues, testData[, num_vars])
+
+# Creando un modelo de regresión lineal
+lm_model <- lm(median_house_value ~ ., data=trainData)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(lm_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+# Puedes usar el modelo para hacer predicciones en nuevos datos
+# new_predictions <- predict(lm_model, newdata=new_data)
+
+
+```
+
+```{r}
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+
+# Leyendo el dataset
+dataset <- read.csv("train.csv")
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Ingeniería de características
+# Crear una nueva característica, por ejemplo, habitaciones por hogar
+dataset$rooms_per_household <- dataset$total_rooms / dataset$households
+
+# Convertir 'ocean_proximity' en variables dummy
+dummies <- dummyVars(~ ., data=dataset)
+dataset <- data.frame(predict(dummies, newdata = dataset))
+
+# Normalizando los datos (excluyendo la variable objetivo)
+num_vars <- colnames(dataset) != "median_house_value"
+preProcValues <- preProcess(dataset[, num_vars], method = c("center", "scale"))
+dataset[, num_vars] <- predict(preProcValues, dataset[, num_vars])
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.8, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Creando un modelo de regresión lineal con validación cruzada
+control <- trainControl(method="cv", number=5)
+set.seed(123)
+lm_model <- train(median_house_value ~ ., data=trainData, method="lm", trControl=control)
+
+# Mostrando los resultados de la validación cruzada
+print(lm_model)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(lm_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+
+```
+```{r}
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+
+# Leyendo el dataset
+dataset <- read.csv("train.csv")
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Ingeniería de características
+# Crear una nueva característica, por ejemplo, habitaciones por hogar
+dataset$rooms_per_household <- dataset$total_rooms / dataset$households
+
+# Convertir 'ocean_proximity' en variables dummy
+dummies <- dummyVars(~ ., data=dataset)
+dataset <- data.frame(predict(dummies, newdata = dataset))
+
+# Normalizando los datos (excluyendo la variable objetivo)
+num_vars <- colnames(dataset) != "median_house_value"
+preProcValues <- preProcess(dataset[, num_vars], method = c("center", "scale"))
+dataset[, num_vars] <- predict(preProcValues, dataset[, num_vars])
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.8, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Creando un modelo de regresión lineal con validación cruzada
+control <- trainControl(method="cv", number=5)
+set.seed(123)
+lm_model <- train(median_house_value ~ ., data=trainData, method="lm", trControl=control)
+
+# Mostrando los resultados de la validación cruzada
+print(lm_model)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(lm_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+```
+

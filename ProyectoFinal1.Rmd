@@ -278,7 +278,7 @@ dataset_normalized[numeric_cols] <- lapply(dataset_normalized[numeric_cols], nor
 
 ```{r}
 # Set your working directory to the folder where your CSV file is
-setwd("/Users/carlosalvarado/Documents/Predict-House-Price---Econometr-a-en-R---2023")
+#setwd("/Users/carlosalvarado/Documents/Predict-House-Price---Econometr-a-en-R---2023")
 
 # Load your CSV data into a dataframe
 testdf <- read.csv("test.csv")
@@ -303,7 +303,7 @@ dataset4 = dataset
 #dataset4 = select(dataset4, -id)
 
 # Muestrar las primeras 6 filas del nuevo conjunto de datos
-head(dataset4)
+summary(dataset4)
 
 ```
 # Tranformamos variables categoricas a numericas
@@ -391,41 +391,44 @@ normalize <- function(x) {
   return((x - min(x)) / (max(x) - min(x)))
 }
 
-# Aplicar la normalización a las variables numéricas en el conjunto de datos
-numeric_cols <- sapply(training_data6, is.numeric)
+
+# Remover la columna que no deseas normalizar del vector de columnas numéricas
+numeric_cols <- numeric_cols & !(names(training_data6) == "median_house_value")
+
+# Crear una copia del conjunto de datos original
 training_data_normalized6 <- training_data6
+
+# Aplicar la normalización solo a las variables numéricas excepto la columna especificada
 training_data_normalized6[numeric_cols] <- lapply(training_data_normalized6[numeric_cols], normalize)
 
-head(training_data_normalized6)
+training_data_normalized6$`NEAR OCEAN` <- NULL
+#summary(training_data_normalized6)
 
-# Calcular la desviación estándar de la variable objetivo en el conjunto de datos de prueba
-std_dev <- sd(testing_data6$median_house_value)
+model4 <- lm(median_house_value ~ ., data = training_data_normalized6)
+model4
 
-# Entrenar el modelo de regresión lineal con los datos normalizados
-model3 <- train(median_house_value ~ ., data = training_data_normalized6, method = "lm", trControl = trainControl(method = "cv", number = 10))
+# Crear una copia del conjunto de datos original
+test_data_normalized6 <- testing_data6
 
-print(model3)
+# Aplicar la normalización solo a las variables numéricas excepto la columna especificada
+test_data_normalized6[numeric_cols] <- lapply(test_data_normalized6[numeric_cols], normalize)
 
-# Normalizar las variables numéricas en el conjunto de prueba
-testing_data_normalized6 <- testing_data6
-testing_data_normalized6[numeric_cols] <- lapply(testing_data_normalized6[numeric_cols], normalize)
 
-# Hacer la predicción con el conjunto de prueba normalizado
-predictions <- predict(model3, testing_data_normalized6)
+predictions <- predict(model4, test_data_normalized6[numeric_cols])
 
-head(predictions)
+#head(predictions)
 
 # Calcular el Error Cuadrático Medio con los datos normalizados
-#mse <- mean((predictions - testing_data_normalized6$median_house_value)^2)
+mse <- mean((predictions - test_data_normalized6$median_house_value)^2)
 
 # Calcular la Raíz del Error Cuadrático Medio con los datos normalizados
-#rmse <- sqrt(mse)
+rmse <- sqrt(mse)
 
 # Calcular la desviación estándar del error de predicción
 #std_dev <- sd(predictions - testing_data_normalized6$median_house_value)
 
 # Mostrar la Raíz del Error Cuadrático Medio con los datos normalizados
-#print(paste("Raiz del Error Cuadratico Medio (RMSE) con datos normalizados:", rmse))
+print(paste("Raiz del Error Cuadratico Medio (RMSE) con datos normalizados:", rmse))
 
 # Mostrar la desviación estándar de la variable median_house_value
 #print(paste("Desviacion Estandar de median_house_value:", std_dev))
