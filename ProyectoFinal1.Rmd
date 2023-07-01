@@ -1,6 +1,6 @@
 ---
 title: "Proyecto Final1.0"
-author: "Carlos Alvarado"
+author: "Carlos Alvarado Ronald Guerra Rene Hernandez"
 date: "r Sys.Date()"
 output: pdf_document
 ---
@@ -14,12 +14,25 @@ dataset = read.csv("train.csv")
 ```
 
 ```{r}
-dataset 
+#dataset 
 ```
 
 ```{r}
 summary(dataset)
 ```
+
+id: Identificador único para cada propiedad.
+longitude: Longitud geográfica de la propiedad.
+latitude: Latitud geográfica de la propiedad.
+housing_median_age: Edad media de la vivienda en años.
+total_rooms: Número total de habitaciones.
+total_bedrooms: Número total de dormitorios.
+population: Población en el área de la propiedad.
+households: Número de hogares en el área de la propiedad.
+median_income: Ingreso medio de los hogares en el área de la propiedad.
+median_house_value: Valor medio de las viviendas en el área de la propiedad (esta podría ser una variable objetivo para un modelo de regresión).
+ocean_proximity: Proximidad al océano (parece ser una variable categórica).
+
 
 ```{r}
 
@@ -37,13 +50,69 @@ print(na_columns)
 ```{r}
 str(dataset)
 ```
+Rellenar datos los 137 datos de la columna "total_bedrooms" usando k-means:
+
+
+
 
 ```{r}
-#Validar catidad de opciones en la catargoria "ocean_proximity"
-unique_names = unique(dataset$ocean_proximity)
-print(unique_names)
+# Cargando la librería necesaria
+
+#install.packages("mice")
+
+library(mice)
+
+# Imputación por K-Nearest Neighbors (KNN)
+tempData <- mice(dataset, method='pmm', m=5) # puedes cambiar el valor de m si es necesario
+dataset <- complete(tempData)
 
 ```
+
+
+```{r}
+summary(dataset)
+```
+
+
+** Datos Anteriores **
+
+      id          longitude         latitude     housing_median_age  total_rooms    total_bedrooms     population   
+ Min.   :    1   Min.   :-124.3   Min.   :32.54   Min.   : 1.00      Min.   :    2   Min.   :   1.0   Min.   :    6  
+ 1st Qu.: 5140   1st Qu.:-121.8   1st Qu.:33.93   1st Qu.:18.00      1st Qu.: 1444   1st Qu.: 295.0   1st Qu.:  786  
+ Median :10210   Median :-118.5   Median :34.26   Median :29.00      Median : 2121   Median : 433.0   Median : 1163  
+ Mean   :10275   Mean   :-119.6   Mean   :35.64   Mean   :28.85      Mean   : 2635   Mean   : 537.8   Mean   : 1425  
+ 3rd Qu.:15449   3rd Qu.:-118.0   3rd Qu.:37.72   3rd Qu.:37.00      3rd Qu.: 3138   3rd Qu.: 647.0   3rd Qu.: 1722  
+ Max.   :20640   Max.   :-114.3   Max.   :41.95   Max.   :52.00      Max.   :39320   Max.   :6445.0   Max.   :28566  
+                                                                                     NA's   :137                     
+   households     median_income     median_house_value ocean_proximity   
+ Min.   :   1.0   Min.   : 0.4999   Min.   : 14999     Length:14447      
+ 1st Qu.: 280.0   1st Qu.: 2.5671   1st Qu.:119600     Class :character  
+ Median : 408.0   Median : 3.5350   Median :179700     Mode  :character  
+ Mean   : 500.1   Mean   : 3.8639   Mean   :206874                       
+ 3rd Qu.: 604.5   3rd Qu.: 4.7229   3rd Qu.:264600                       
+ Max.   :6082.0   Max.   :15.0001   Max.   :500001                      
+
+
+
+```{r}
+str(dataset)
+```
+
+ ** Datos anteriores **
+'data.frame':	14447 obs. of  11 variables:
+ $ id                : int  9744 13893 18277 16176 8843 7653 14056 18819 17145 16187 ...
+ $ longitude         : num  -122 -116 -122 -122 -118 ...
+ $ latitude          : num  36.8 34.1 37.3 37.7 34.1 ...
+ $ housing_median_age: int  15 37 35 52 28 28 23 40 18 52 ...
+ $ total_rooms       : int  2191 452 1172 126 4001 2152 3999 690 1636 107 ...
+ $ total_bedrooms    : int  358 109 184 24 1352 415 1182 129 414 79 ...
+ $ population        : int  1150 184 512 37 1799 1623 2051 305 853 167 ...
+ $ households        : int  330 59 175 27 1220 429 1130 110 439 53 ...
+ $ median_income     : num  4.8 3.73 7.36 10.23 2.58 ...
+ $ median_house_value: num  227500 65800 500001 225000 272900 ...
+ $ ocean_proximity   : chr  "<1H OCEAN" "INLAND" "<1H OCEAN" "NEAR BAY" ...
+
+
 
 ** Los posibles resultados de ocean_proximity estan limitados a 5 opciones: "<1H OCEAN"  "INLAND"     "NEAR BAY"   "NEAR OCEAN" "ISLAND"  **
 
@@ -57,7 +126,7 @@ cor_matrix
 ```
 
 ```{r}
-library(corrplot)
+
 library(corrplot)
 ```
 
@@ -68,5 +137,116 @@ corrplot(cor_matrix, method = "color", type = "upper", order = "hclust",
          tl.col="black", # Text label color
          #tl.srt=45
          ) # Text label rotation
+```
+```{r}
+#install.packages("caret")
+library(caret)
+```
+
+
+
+Crear una partición de los datos: Divide tu conjunto de datos en un conjunto de entrenamiento y un conjunto de pruebas. Esto es esencial para evaluar el rendimiento del modelo en datos no vistos.
+
+
+```{r}
+set.seed(123) # Para reproducibilidad
+index <- createDataPartition(dataset$median_house_value, p = 0.8, list = FALSE)
+training_data <- dataset[index, ]
+testing_data <- dataset[-index, ]
+```
+
+```{r}
+summary(training_data)
+summary(testing_data)
+```
+# Primer Modelo
+
+```{r}
+# Entrenar el modelo de regresión lineal
+model1 <- train(median_house_value ~ ., data = training_data, method = "lm", trControl = trainControl(method = "cv", number = 10))
+
+# Hacer la predicción con la parte de prueba
+predictions <- predict(model1, testing_data)
+
+# Calcular el Error Cuadrático Medio
+mse <- mean((predictions - testing_data$median_house_value)^2)
+
+# Calcular la Raíz del Error Cuadrático Medio
+rmse <- sqrt(mse)
+
+# Calcular la desviación estándar de la variable median_house_value en el conjunto de datos de prueba
+std_dev <- sd(testing_data$median_house_value)
+
+# Mostrar la Raíz del Error Cuadrático Medio
+print(paste("Raíz del Error Cuadrático Medio (RMSE):", rmse))
+
+# Mostrar la desviación estándar de la variable median_house_value
+print(paste("Desviación Estándar de median_house_value:", std_dev))
+```
+# Segundo Modelo
+
+```{r}
+model2 <- train(median_house_value ~ ., data = training_data, method = "glmnet",
+                trControl = trainControl(method = "cv", number = 10),
+                tuneGrid = expand.grid(alpha = 1, lambda = seq(0.001, 0.1, length = 10)))
+
+# Hacer la predicción con la parte de prueba
+predictions <- predict(model2, testing_data)
+
+# Calcular el Error Cuadrático Medio
+mse <- mean((predictions - testing_data$median_house_value)^2)
+
+# Calcular la Raíz del Error Cuadrático Medio
+rmse <- sqrt(mse)
+
+# Calcular la desviación estándar de la variable median_house_value en el conjunto de datos de prueba
+std_dev <- sd(testing_data$median_house_value)
+
+# Mostrar la Raíz del Error Cuadrático Medio
+print(paste("Raíz del Error Cuadrático Medio (RMSE):", rmse))
+
+# Mostrar la desviación estándar de la variable median_house_value
+print(paste("Desviación Estándar de median_house_value:", std_dev))
+
+```
+# Tercer modelo
+```{r}
+# Realizar la normalización de las variables numéricas en el conjunto de datos
+normalize <- function(x) {
+  return((x - min(x)) / (max(x) - min(x)))
+}
+
+# Aplicar la normalización a las variables numéricas en el conjunto de datos
+numeric_cols <- sapply(training_data, is.numeric)
+training_data_normalized <- training_data
+training_data_normalized[numeric_cols] <- lapply(training_data_normalized[numeric_cols], normalize)
+
+# Calcular la desviación estándar de la variable objetivo en el conjunto de datos de prueba
+std_dev <- sd(testing_data$median_house_value)
+
+# Entrenar el modelo de regresión lineal con los datos normalizados
+model3 <- train(median_house_value ~ ., data = training_data_normalized, method = "lm", trControl = trainControl(method = "cv", number = 10))
+
+# Normalizar las variables numéricas en el conjunto de prueba
+testing_data_normalized <- testing_data
+testing_data_normalized[numeric_cols] <- lapply(testing_data_normalized[numeric_cols], normalize)
+
+# Hacer la predicción con el conjunto de prueba normalizado
+predictions <- predict(model3, testing_data_normalized)
+
+# Calcular el Error Cuadrático Medio con los datos normalizados
+mse <- mean((predictions - testing_data_normalized$median_house_value)^2)
+
+# Calcular la Raíz del Error Cuadrático Medio con los datos normalizados
+rmse <- sqrt(mse)
+
+std_dev <- sd(testing_data$median_house_value)
+
+# Mostrar la Raíz del Error Cuadrático Medio con los datos normalizados
+print(paste("Raiz del Error Cuadratico Medio (RMSE) con datos normalizados:", rmse))
+
+# Mostrar la desviación estándar de la variable median_house_value
+print(paste("Desviacion Estandar de median_house_value:", std_dev))
+
 ```
 
