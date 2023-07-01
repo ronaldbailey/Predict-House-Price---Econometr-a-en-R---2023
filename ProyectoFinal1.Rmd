@@ -14,7 +14,7 @@ dataset = read.csv("train.csv")
 ```
 
 ```{r}
-#dataset 
+head(dataset)
 ```
 
 ```{r}
@@ -248,6 +248,49 @@ print(paste("Raiz del Error Cuadratico Medio (RMSE) con datos normalizados:", rm
 
 # Mostrar la desviación estándar de la variable median_house_value
 print(paste("Desviacion Estandar de median_house_value:", std_dev))
+
+```
+
+
+# Finalizar Modelo
+
+```{r}
+
+
+# Aplicar la normalización a las variables numéricas en el conjunto de datos
+numeric_cols <- sapply(dataset, is.numeric)
+dataset_normalized <- dataset
+dataset_normalized[numeric_cols] <- lapply(dataset_normalized[numeric_cols], normalize)
+
+# Calcular la desviación estándar de la variable objetivo en el conjunto de datos de prueba
+std_dev <- sd(testing_data$median_house_value)
+
+# Entrenar el modelo de regresión lineal con los datos normalizados
+model3 <- train(median_house_value ~ ., data = dataset_normalized, method = "lm", trControl = trainControl(method = "cv", number = 10))
+
+# Normalizar las variables numéricas en el conjunto de prueba
+dataset_normalized <- dataset
+dataset_normalized[numeric_cols] <- lapply(dataset_normalized[numeric_cols], normalize)
+
+```
+
+# Cargar dataset de prueba
+
+```{r}
+# Set your working directory to the folder where your CSV file is
+setwd("/Users/carlosalvarado/Documents/Predict-House-Price---Econometr-a-en-R---2023")
+
+# Load your CSV data into a dataframe
+testdf <- read.csv("test.csv")
+
+# View the first few rows of the dataframe
+head(testdf)
+
+```
+
+# Normalizar datos de prueba 
+
+```{r}
 
 ```
 
