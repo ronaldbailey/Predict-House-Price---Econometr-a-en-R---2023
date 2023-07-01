@@ -240,7 +240,8 @@ mse <- mean((predictions - testing_data_normalized$median_house_value)^2)
 # Calcular la Raíz del Error Cuadrático Medio con los datos normalizados
 rmse <- sqrt(mse)
 
-std_dev <- sd(testing_data$median_house_value)
+# Calcular la desviación estándar del error de predicción
+std_dev <- sd(predictions - testing_data_normalized$median_house_value)
 
 # Mostrar la Raíz del Error Cuadrático Medio con los datos normalizados
 print(paste("Raiz del Error Cuadratico Medio (RMSE) con datos normalizados:", rmse))
