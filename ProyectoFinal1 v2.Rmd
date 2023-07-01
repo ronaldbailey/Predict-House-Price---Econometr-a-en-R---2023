@@ -644,3 +644,260 @@ print(result)
 
 write.csv(result, "results7.csv", row.names = FALSE)
 ```
+
+
+
+
+```{r}
+
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+
+# Leyendo el dataset
+dataset <- read.csv("train.csv")
+#head(dataset)
+
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=2)
+dataset <- complete(tempData)
+
+# Ingeniería de características
+# Crear una nueva característica, por ejemplo, habitaciones por hogar
+dataset$rooms_per_household <- dataset$total_rooms / dataset$households
+
+# Convertir 'ocean_proximity' en variables dummy
+dummies <- dummyVars(~ ., data=dataset)
+dataset <- data.frame(predict(dummies, newdata = dataset))
+
+# Normalizando los datos (excluyendo la variable objetivo)
+#num_vars <- colnames(dataset) != "median_house_value"
+num_vars <- !(colnames(dataset) %in% c("median_house_value", "id"))
+preProcValues <- preProcess(dataset[, num_vars], method = c("center", "scale"))
+dataset[, num_vars] <- predict(preProcValues, dataset[, num_vars])
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.7, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Creando un modelo de regresión lineal con validación cruzada
+control <- trainControl(method="cv", number=5)
+set.seed(123)
+lm_model <- train(median_house_value ~ ., data=trainData, method="lm", trControl=control)
+
+# Mostrando los resultados de la validación cruzada
+print(lm_model)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(lm_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+print(paste("% que representa el valor del error sobre la media:", (RMSE / mean(dataset$median_house_value)) * 100))
+
+#Leer el nuevo dataset sin la variable "median_house_value"
+new_dataset <- read.csv("test.csv")
+
+#Realizar la imputación de datos faltantes (si es necesario)
+tempData <- mice(new_dataset, method='pmm', m=2)
+new_dataset <- complete(tempData)
+
+#Realizar la ingeniería de características (si es necesario)
+new_dataset$rooms_per_household <- new_dataset$total_rooms / new_dataset$households
+
+#Convertir 'ocean_proximity' en variables dummy (si es necesario)
+dummies <- dummyVars(~ ., data=new_dataset)
+new_dataset <- data.frame(predict(dummies, newdata = new_dataset))
+
+#Normalizar los datos (excluyendo la variable objetivo)
+num_vars <- colnames(new_dataset) != "id"
+preProcValues <- preProcess(new_dataset[, num_vars], method = c("center", "scale"))
+new_dataset[, num_vars] <- predict(preProcValues, new_dataset[, num_vars])
+
+#Hacer predicciones utilizando el modelo entrenado
+predictions <- predict(lm_model, newdata=new_dataset)
+
+#Combinar el nuevo dataset con las predicciones
+result <- data.frame(id = new_dataset$id, median_house_value = predictions)
+
+#Mostrar las predicciones
+print(result)
+
+write.csv(result, "results8.csv", row.names = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+library(randomForest)
+
+# Leyendo el dataset
+dataset <- read.csv("train.csv")
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Ingeniería de características
+dataset$rooms_per_household <- dataset$total_rooms / dataset$households
+
+# Convertir 'ocean_proximity' en variables dummy
+dummies <- dummyVars(~ ., data=dataset)
+dataset <- data.frame(predict(dummies, newdata = dataset))
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.7, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Creando un modelo de Random Forest en lugar de regresión lineal
+# Esto puede ayudar a capturar relaciones más complejas en los datos
+control <- trainControl(method="cv", number=5)
+set.seed(123)
+rf_model <- train(median_house_value ~ ., data=trainData, method="rf", trControl=control, ntree=100)
+
+# Mostrando los resultados de la validación cruzada
+print(rf_model)
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(rf_model, newdata=testData)
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+#Leer el nuevo dataset sin la variable "median_house_value"
+new_dataset <- read.csv("test.csv")
+
+#Realizar la imputación de datos faltantes (si es necesario)
+tempData <- mice(new_dataset, method='pmm', m=5)
+new_dataset <- complete(tempData)
+
+#Realizar la ingeniería de características (si es necesario)
+new_dataset$rooms_per_household <- new_dataset$total_rooms / new_dataset$households
+
+#Convertir 'ocean_proximity' en variables dummy (si es necesario)
+dummies <- dummyVars(~ ., data=new_dataset)
+new_dataset <- data.frame(predict(dummies, newdata = new_dataset))
+
+#Hacer predicciones utilizando el modelo entrenado
+predictions <- predict(rf_model, newdata=new_dataset)
+
+#Combinar el nuevo dataset con las predicciones
+result <- data.frame(id = new_dataset$id, median_house_value = predictions)
+
+#Mostrar las predicciones
+print(result)
+
+write.csv(result, "results8.csv", row.names = FALSE)
+```
+
+
+```{r}
+
+# Cargando las librerías necesarias
+library(mice)
+library(caret)
+library(randomForest)
+
+# Leyendo el dataset
+dataset <- read.csv("train.csv")
+
+# Imputación de datos faltantes
+tempData <- mice(dataset, method='pmm', m=5)
+dataset <- complete(tempData)
+
+# Ingeniería de características
+dataset$rooms_per_household <- dataset$total_rooms / dataset$households
+
+# Convertir 'ocean_proximity' en variables dummy
+dummies <- dummyVars(~ . -id, data=dataset) # excluye 'id' al crear las variables dummy
+dataset <- data.frame(predict(dummies, newdata = dataset))
+
+# Normalizando los datos (excluyendo la variable objetivo y 'id')
+num_vars <- !(colnames(dataset) %in% c("median_house_value", "id"))
+preProcValues <- preProcess(dataset[, num_vars], method = c("center", "scale"))
+dataset[, num_vars] <- predict(preProcValues, dataset[, num_vars])
+
+# Dividiendo el dataset en conjuntos de entrenamiento y prueba
+set.seed(123)
+trainIndex <- createDataPartition(dataset$median_house_value, p=0.7, list=FALSE)
+trainData <- dataset[trainIndex,]
+testData <- dataset[-trainIndex,]
+
+# Creando un modelo de Random Forest
+control <- trainControl(method="cv", number=5)
+set.seed(123)
+rf_model <- train(median_house_value ~ ., data=trainData[, !names(trainData) %in% c("id")], method="rf", trControl=control, ntree=100) # excluye 'id' en el entrenamiento
+
+# Mostrando los resultados de la validación cruzada
+print(rf_model)
+
+
+
+
+# Haciendo predicciones en el conjunto de prueba
+predictions <- predict(rf_model, newdata=testData[, !names(testData) %in% c("id")]) # excluye 'id' en las predicciones
+
+# Evaluando el rendimiento del modelo
+RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
+print(paste("Root Mean Squared Error:", RMSE))
+
+#Leer el nuevo dataset sin la variable "median_house_value"
+new_dataset <- read.csv("test.csv")
+
+# Mostrar dimensiones antes de la imputación
+print(paste("Dimensiones del nuevo dataset antes de la imputación:", dim(new_dataset)))
+
+#Realizar la imputación de datos faltantes (si es necesario)
+tempData <- mice(new_dataset, method='pmm', m=5)
+new_dataset <- complete(tempData)
+
+# Mostrar dimensiones después de la imputación
+print(paste("Dimensiones del nuevo dataset después de la imputación:", dim(new_dataset)))
+
+#Realizar la ingeniería de características (si es necesario)
+new_dataset$rooms_per_household <- new_dataset$total_rooms / new_dataset$households
+
+#Convertir 'ocean_proximity' en variables dummy (si es necesario)
+dummies <- dummyVars(~ . -id, data=new_dataset) # excluye 'id' al crear las variables dummy
+new_dataset <- data.frame(predict(dummies, newdata = new_dataset))
+
+# Mostrar dimensiones después de convertir a variables dummy
+print(paste("Dimensiones del nuevo dataset después de convertir a variables dummy:", dim(new_dataset)))
+
+#Normalizar los datos (excluyendo 'id')
+num_vars <- colnames(new_dataset) != "id"
+new_dataset[, num_vars] <- predict(preProcValues, new_dataset[, num_vars])
+
+#Hacer predicciones utilizando el modelo entrenado
+predictions <- predict(rf_model, newdata=new_dataset[, !names(new_dataset) %in% c("id")]) # excluye 'id' en las predicciones
+
+# Mostrar dimensiones de las predicciones
+print(paste("Número de predicciones:", length(predictions)))
+
+#Combinar el nuevo dataset con las predicciones
+result <- data.frame(id = new_dataset$id, median_house_value = predictions)
+
+#Mostrar las predicciones
+print(result)
+
+write.csv(result, "results8.csv", row.names = FALSE)
+
+```
+
