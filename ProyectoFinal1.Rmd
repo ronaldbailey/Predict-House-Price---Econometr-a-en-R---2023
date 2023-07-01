@@ -288,9 +288,76 @@ head(testdf)
 
 ```
 
-# Normalizar datos de prueba 
+# Modelo cuatro
+
+# Ingenieria de caracteristicas
+```{r}
+
+# Cargar el paquete dplyr
+library(dplyr)
+
+# Crear una copia del conjunto de datos original
+dataset4 = dataset
+
+# Eliminar la columna "id" de dataset4
+#dataset4 = select(dataset4, -id)
+
+# Muestrar las primeras 6 filas del nuevo conjunto de datos
+head(dataset4)
+
+```
+# Tranformamos variables categoricas a numericas
+```{r}
+
+# Crea las variables dummy
+dummies <- model.matrix(~ocean_proximity - 1, data = dataset4)
+
+# Convierte la matriz a un dataframe
+dummies <- as.data.frame(dummies)
+
+#head(dummies)
+
+# Cambia el nombre de las columnas para que no contengan el nombre original de la variable
+names(dummies) <- gsub("ocean_proximity", "", names(dummies))
+
+# Une las variables dummy al dataframe original
+dataset5 <- bind_cols(dataset4, dummies)
+
+# Verifica tu dataframe
+#head(dataset4)
+head(dataset5)
+
+
+```
+# Remover columnas id y ocean proximity
+```{r}
+
+# Eliminar la columna "id" de dataset4
+dataset6 = select(dataset5, -id)
+dataset6 = select(dataset6, -ocean_proximity)
+head(dataset6)
+```
+# Slit train y test 
+```{r}
+set.seed(123) # Para reproducibilidad
+index6 <- createDataPartition(dataset6$median_house_value, p = 0.8, list = FALSE)
+training_data6 <- dataset6[index6, ]
+testing_data6 <- dataset6[-index6, ]
+```
+
+# Validacion de integridad de los datos despues de la ingenieria de caracteriscitas 
 
 ```{r}
+summary(training_data6)
+summary(testing_data6)
+```
+
+```{r}
+# Assuming 'df' is your dataframe
+nrow(training_data6)
+nrow(testing_data6)
+nrow(dataset6)
+nrow(training_data6) + nrow(testing_data6)
 
 ```
 
