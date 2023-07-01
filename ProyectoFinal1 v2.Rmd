@@ -47,7 +47,7 @@ print(paste("Root Mean Squared Error:", RMSE))
 
 # Puedes usar el modelo para hacer predicciones en nuevos datos
 # new_predictions <- predict(rf_model, newdata=new_data)
-
+print(paste("% que representa el valor del error sobre la media:", (RMSE / mean(dataset$median_house_value)) * 100))
 ```
 ```{r}
 dataset = read.csv("train.csv")
@@ -83,7 +83,7 @@ print(paste("Root Mean Squared Error:", RMSE))
 
 # Puedes usar el modelo para hacer predicciones en nuevos datos
 # new_predictions <- predict(lm_model, newdata=new_data)
-
+print(paste("% que representa el valor del error sobre la media:", (RMSE / mean(dataset$median_house_value)) * 100))
 ```
 
 ```{r}
@@ -127,7 +127,7 @@ print(paste("Root Mean Squared Error:", RMSE))
 
 # Puedes usar el modelo para hacer predicciones en nuevos datos
 # new_predictions <- predict(lm_model, newdata=new_data)
-
+print(paste("% que representa el valor del error sobre la media:", (RMSE / mean(dataset$median_house_value)) * 100))
 ```
 ```{r}
 # Cargando las librerías necesarias
@@ -176,7 +176,7 @@ print(paste("Root Mean Squared Error:", RMSE))
 
 # Puedes usar el modelo para hacer predicciones en nuevos datos
 # new_predictions <- predict(lm_model, newdata=new_data)
-
+print(paste("% que representa el valor del error sobre la media:", (RMSE / mean(dataset$median_house_value)) * 100))
 
 ```
 
@@ -189,7 +189,7 @@ library(caret)
 dataset <- read.csv("train.csv")
 
 # Imputación de datos faltantes
-tempData <- mice(dataset, method='pmm', m=5)
+tempData <- mice(dataset, method='pmm', m=2)
 dataset <- complete(tempData)
 
 # Ingeniería de características
@@ -225,54 +225,9 @@ predictions <- predict(lm_model, newdata=testData)
 # Evaluando el rendimiento del modelo
 RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
 print(paste("Root Mean Squared Error:", RMSE))
-
-
-```
-```{r}
-# Cargando las librerías necesarias
-library(mice)
-library(caret)
-
-# Leyendo el dataset
-dataset <- read.csv("train.csv")
-
-# Imputación de datos faltantes
-tempData <- mice(dataset, method='pmm', m=5)
-dataset <- complete(tempData)
-
-# Ingeniería de características
-# Crear una nueva característica, por ejemplo, habitaciones por hogar
-dataset$rooms_per_household <- dataset$total_rooms / dataset$households
-
-# Convertir 'ocean_proximity' en variables dummy
-dummies <- dummyVars(~ ., data=dataset)
-dataset <- data.frame(predict(dummies, newdata = dataset))
-
-# Normalizando los datos (excluyendo la variable objetivo)
-num_vars <- colnames(dataset) != "median_house_value"
-preProcValues <- preProcess(dataset[, num_vars], method = c("center", "scale"))
-dataset[, num_vars] <- predict(preProcValues, dataset[, num_vars])
-
-# Dividiendo el dataset en conjuntos de entrenamiento y prueba
-set.seed(123)
-trainIndex <- createDataPartition(dataset$median_house_value, p=0.8, list=FALSE)
-trainData <- dataset[trainIndex,]
-testData <- dataset[-trainIndex,]
-
-# Creando un modelo de regresión lineal con validación cruzada
-control <- trainControl(method="cv", number=5)
-set.seed(123)
-lm_model <- train(median_house_value ~ ., data=trainData, method="lm", trControl=control)
-
-# Mostrando los resultados de la validación cruzada
-print(lm_model)
-
-# Haciendo predicciones en el conjunto de prueba
-predictions <- predict(lm_model, newdata=testData)
-
-# Evaluando el rendimiento del modelo
-RMSE <- sqrt(mean((testData$median_house_value - predictions)^2))
-print(paste("Root Mean Squared Error:", RMSE))
+print(paste("% que representa el valor del error sobre la media:", (RMSE / mean(dataset$median_house_value)) * 100))
 
 ```
+
+
 

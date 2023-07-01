@@ -41,9 +41,9 @@ system("git commit -m \"modelo 3\" ")
 system("git push")
 ```
 ```{r}
-system("git pull")#este actualiza el repositorio
-#system("git add .")
-#system("git commit -m \"modelo 3 actualizacion de desviacion estandard\" ")
-#system("git push")
+#system("git pull")#este actualiza el repositorio
+system("git add .")
+system("git commit -m \"modelo 3 actualizacion de desviacion estandard\" ")
+system("git push")
 ```
 
